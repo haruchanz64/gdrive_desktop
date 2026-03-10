@@ -30,13 +30,26 @@ In short, gdrive Desktop trades convenience for control. It is better suited for
 - **Light / Dark Mode** — Persistent theme preference stored locally.
 - **Native Window Management** — Custom title bar and window controls via `window_manager`.
 
+## Download
+
+Pre-built binaries for Windows, macOS, and Linux are available on the [Releases](https://github.com/haruchanz64/gdrive_desktop/releases) page.
+
+| Platform | Download |
+| --- | --- |
+| Windows | `gdrive_desktop_vX.X.X_windows.zip` |
+| macOS | `gdrive_desktop_vX.X.X_macos.zip` |
+| Linux | `gdrive_desktop_vX.X.X_linux.zip` |
+
+> Extract the archive and run the executable directly. No installer required.
+
 ## Requirements
 
-- [Flutter](https://docs.flutter.dev/get-started/install) 3.27 or later
 - [Node.js](https://nodejs.org) 18 or later
 - [gdrive CLI](https://github.com/haruchanz64/gdrive-cli) installed and available on `PATH`
 - A Google account authenticated via `gdrive auth login`
 - Windows 10 or later, macOS 12 or later, or a modern Linux distribution
+
+> If you are building from source, [Flutter](https://docs.flutter.dev/get-started/install) 3.27 or later is also required.
 
 ## Getting Started
 
@@ -52,20 +65,26 @@ npm install -g gdrive-cli
 gdrive auth login
 ```
 
-### 3. Clone this repository
+### 3. Download the latest release
+
+Go to the [Releases](https://github.com/haruchanz64/gdrive_desktop/releases) page, download the archive for your platform, extract it, and run the executable.
+
+## Building from Source
+
+### Clone this repository
 
 ```bash
 git clone https://github.com/haruchanz64/gdrive_desktop.git
 cd gdrive_desktop
 ```
 
-### 4. Install dependencies
+### Install dependencies
 
 ```bash
 flutter pub get
 ```
 
-### 5. Run the application
+### Run
 
 ```bash
 # Windows
@@ -78,37 +97,22 @@ flutter run -d macos
 flutter run -d linux
 ```
 
-## Building
-
-### Windows
-
-```powershell
-.\scripts\build.ps1 -Version "1.0.0" -Platform windows
-```
-
-### macOS
-
-```bash
-bash scripts/build.sh 1.0.0 darwin
-```
-
-### Linux
-
-```bash
-bash scripts/build.sh 1.0.0 linux
-```
-
-### Clean build
+### Build
 
 ```powershell
 # Windows
+.\scripts\build.ps1 -Version "1.0.0" -Platform windows
+
+# Windows (clean)
 .\scripts\build.ps1 -Version "1.0.0" -Platform windows -Clean
 ```
 
 ```bash
-# macOS / Linux
-bash scripts/build.sh 1.0.0 darwin true
-bash scripts/build.sh 1.0.0 linux true
+# macOS
+bash scripts/build.sh 1.0.0 darwin
+
+# Linux
+bash scripts/build.sh 1.0.0 linux
 ```
 
 > macOS builds must be run on a Mac. Linux builds must be run on Linux. Cross-compilation is not supported by Flutter for desktop platforms.
@@ -125,6 +129,9 @@ lib/
 scripts/
   build.ps1       # Windows build script
   build.sh        # macOS / Linux build script
+.github/
+  workflows/
+    release.yml   # GitHub Actions release workflow
 ```
 
 ## Dependencies
