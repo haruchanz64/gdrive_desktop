@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gdrive_desktop/providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../core/colors.dart';
 import '../providers/folder_provider.dart';
@@ -413,7 +414,19 @@ class _TopBarActionButton extends StatelessWidget {
   }
 }
 
-void _showAbout(BuildContext context) {
+void _showAbout(BuildContext context) async {
+  final packageInfo = await PackageInfo.fromPlatform();
+  final version = packageInfo.version;
+  final platform = Platform.isWindows
+      ? 'Windows'
+      : Platform.isMacOS
+          ? 'macOS'
+          : Platform.isLinux
+              ? 'Linux'
+              : 'Unknown';
+
+  if (!context.mounted) return;
+
   final c = context.colors;
   showDialog(
     context: context,
@@ -444,11 +457,11 @@ void _showAbout(BuildContext context) {
           const SizedBox(height: 16),
           Divider(color: c.divider),
           const SizedBox(height: 12),
-          _AboutRow(label: 'Author', value: 'haruchanz64'),
+                const _AboutRow(label: 'Author', value: 'haruchanz64'),
           const SizedBox(height: 6),
-          _AboutRow(label: 'Version', value: '1.0.0'),
+                _AboutRow(label: 'Version', value: version),
           const SizedBox(height: 6),
-          _AboutRow(label: 'Platform', value: 'Windows'),
+                _AboutRow(label: 'Platform', value: platform),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: () => launchUrl(

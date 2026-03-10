@@ -1,6 +1,6 @@
 name: gdrive_desktop
 description: A Flutter desktop GUI for gdrive-cli — Git-like Google Drive sync.
-version: 1.0.0+1
+version: 1.0.1
 publish_to: none
 
 environment:
@@ -19,6 +19,7 @@ dependencies:
   intl: ^0.19.0
   http: ^1.6.0
   window_manager: ^0.5.1
+  package_info_plus: ^9.0.0
 
 dev_dependencies:
   flutter_test:
