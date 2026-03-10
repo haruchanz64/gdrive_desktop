@@ -1,10 +1,6 @@
 # gdrive Desktop
 
-A desktop client for Google Drive built with Flutter, powered by the [gdrive CLI](https://github.com/haruchanz64/gdrive-cli).
-
-## Overview
-
-gdrive Desktop provides a native desktop interface for managing Google Drive files. It wraps the gdrive CLI to offer folder syncing, revision history, file diff tracking, push/pull operations, and multi-account support — all from a clean, themeable UI.
+A developer-oriented Google Drive desktop client built with Flutter. Provides explicit push/pull sync, file diff tracking, revision history, and multi-account support — giving developers full control over what gets synced and when, powered by the [gdrive CLI](https://github.com/haruchanz64/gdrive-cli).
 
 ## How is it Different from Google Drive for Desktop?
 
@@ -37,9 +33,10 @@ In short, gdrive Desktop trades convenience for control. It is better suited for
 ## Requirements
 
 - [Flutter](https://docs.flutter.dev/get-started/install) 3.27 or later
+- [Node.js](https://nodejs.org) 18 or later
 - [gdrive CLI](https://github.com/haruchanz64/gdrive-cli) installed and available on `PATH`
 - A Google account authenticated via `gdrive auth login`
-- Windows 10 or later
+- Windows 10 or later, macOS 12 or later, or a modern Linux distribution
 
 ## Getting Started
 
@@ -71,8 +68,50 @@ flutter pub get
 ### 5. Run the application
 
 ```bash
+# Windows
 flutter run -d windows
+
+# macOS
+flutter run -d macos
+
+# Linux
+flutter run -d linux
 ```
+
+## Building
+
+### Windows
+
+```powershell
+.\scripts\build.ps1 -Version "1.0.0" -Platform windows
+```
+
+### macOS
+
+```bash
+bash scripts/build.sh 1.0.0 darwin
+```
+
+### Linux
+
+```bash
+bash scripts/build.sh 1.0.0 linux
+```
+
+### Clean build
+
+```powershell
+# Windows
+.\scripts\build.ps1 -Version "1.0.0" -Platform windows -Clean
+```
+
+```bash
+# macOS / Linux
+bash scripts/build.sh 1.0.0 darwin true
+bash scripts/build.sh 1.0.0 linux true
+```
+
+> macOS builds must be run on a Mac. Linux builds must be run on Linux. Cross-compilation is not supported by Flutter for desktop platforms.
 
 ## Project Structure
 
@@ -83,6 +122,9 @@ lib/
   providers/      # State management (Auth, Folder, Status, Log, Diff, Theme)
   screens/        # Top-level screens (Home, Status, Log, Diff, Auth)
   widgets/        # Reusable UI components (Sidebar, TopBar, Tiles, Viewers)
+scripts/
+  build.ps1       # Windows build script
+  build.sh        # macOS / Linux build script
 ```
 
 ## Dependencies
@@ -96,23 +138,6 @@ lib/
 | `google_fonts` | Inter font family |
 | `intl` | Date formatting in revision history |
 | `window_manager` | Native window title, size, and controls |
-
-## window_manager Setup
-
-This project uses [`window_manager`](https://pub.dev/packages/window_manager) for native window control on Windows.
-
-The following configuration is required in `windows/runner/main.cpp` — no manual changes are needed as this is handled automatically by the package during `flutter pub get`.
-
-If the window title does not update, ensure `windowManager.ensureInitialized()` is called before `runApp` in `main.dart`:
-
-```dart
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await windowManager.ensureInitialized();
-  await windowManager.setTitle('GDrive Desktop');
-  runApp(const GDriveDesktopApp());
-}
-```
 
 ## License
 
