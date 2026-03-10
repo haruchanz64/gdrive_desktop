@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -74,6 +75,9 @@ class _CliNotInstalledScreen extends StatefulWidget {
 
 class _CliNotInstalledScreenState extends State<_CliNotInstalledScreen> {
   bool _copied = false;
+  bool _installing = false;
+  String? _installError;
+  bool _installSuccess = false;
 
   Future<void> _copy() async {
     await Clipboard.setData(
@@ -91,6 +95,47 @@ class _CliNotInstalledScreenState extends State<_CliNotInstalledScreen> {
           SnackBar(content: Text('Could not open $url')),
         );
       }
+    }
+  }
+
+  Future<void> _installCli() async {
+    setState(() {
+      _installing = true;
+      _installError = null;
+      _installSuccess = false;
+    });
+
+    try {
+      final result = await Process.run(
+        Platform.isWindows ? 'npm.cmd' : 'npm',
+        ['install', '-g', '@haruchanz64/gdrive-cli'],
+        runInShell: true,
+      );
+
+      if (!mounted) return;
+
+      if (result.exitCode == 0) {
+        setState(() {
+          _installSuccess = true;
+          _installing = false;
+        });
+        // Re-check CLI presence after successful install
+        await context.read<AuthProvider>().initialize();
+      } else {
+        setState(() {
+          _installError = result.stderr.toString().trim().isNotEmpty
+              ? result.stderr.toString().trim()
+              : 'Installation failed. Please try manually.';
+          _installing = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _installError =
+            'Could not run npm. Make sure Node.js is installed and try again.';
+        _installing = false;
+      });
     }
   }
 
@@ -176,40 +221,97 @@ class _CliNotInstalledScreenState extends State<_CliNotInstalledScreen> {
                   number: '2',
                   title: 'Install gdrive CLI',
                   description:
-                      'Open a terminal and run the following command:',
-                  action: Container(
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.black26 : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: c.border),
-                    ),
-                    child: Row(
-                      children: [
-                        const Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 12),
-                            child: SelectableText(
-                              'npm install -g @haruchanz64/gdrive-cli',
-                              style: TextStyle(
-                                fontFamily: 'monospace',
-                                fontSize: 13,
-                                color: AppColors.accent,
+                      'Click "Get CLI" to install automatically, or run the command below manually:',
+                  action: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Command box
+                      Container(
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.black26 : Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: c.border),
+                        ),
+                        child: Row(
+                          children: [
+                            const Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 12),
+                                child: SelectableText(
+                                  'npm install -g @haruchanz64/gdrive-cli',
+                                  style: TextStyle(
+                                    fontFamily: 'monospace',
+                                    fontSize: 13,
+                                    color: AppColors.accent,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                            IconButton(
+                              onPressed: _copy,
+                              tooltip: _copied ? 'Copied!' : 'Copy',
+                              icon: Icon(
+                                _copied ? Icons.check : Icons.copy_outlined,
+                                size: 16,
+                                color: _copied ? AppColors.success : c.fgSubtle,
+                              ),
+                            ),
+                          ],
                         ),
-                        IconButton(
-                          onPressed: _copy,
-                          tooltip: _copied ? 'Copied!' : 'Copy',
-                          icon: Icon(
-                            _copied ? Icons.check : Icons.copy_outlined,
-                            size: 16,
-                            color: _copied ? AppColors.success : c.fgSubtle,
-                          ),
+                      ),
+                      const SizedBox(height: 10),
+                      // Get CLI button
+                      FilledButton.icon(
+                        onPressed: _installing ? null : _installCli,
+                        icon: _installing
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Icon(
+                                _installSuccess
+                                    ? Icons.check_circle_outline
+                                    : Icons.download_outlined,
+                                size: 14,
+                              ),
+                        label: Text(
+                          _installing
+                              ? 'Installing...'
+                              : _installSuccess
+                                  ? 'Installed!'
+                                  : 'Get CLI',
+                        ),
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              _installSuccess ? AppColors.success : null,
+                        ),
+                      ),
+                      // Error message
+                      if (_installError != null) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(Icons.error_outline,
+                                size: 14, color: AppColors.danger),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                _installError!,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.danger,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
 
